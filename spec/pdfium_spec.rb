@@ -3,24 +3,8 @@
 require "spec_helper"
 
 RSpec.describe Pdfium do
-  # Check if PDFium library is available
-  before(:all) do
-    begin
-      Pdfium::Bindings.ffi_lib Pdfium.library_path
-      @pdfium_available = true
-    rescue LoadError => e
-      @pdfium_available = false
-      skip "PDFium library not found: #{e.message}"
-    end
-  end
-
-  # Skip all tests that require a working PDFium library
-  before(:each) do
-    skip "PDFium library not working correctly" unless @pdfium_available
-  end
-
   describe ".new" do
-    it "creates a new Document instance", skip: "PDFium library issues" do
+    it "creates a new Document instance" do
       pdf = described_class.new(fixture_path("test.pdf"))
       expect(pdf).to be_a(Pdfium::Document)
     end
@@ -43,8 +27,8 @@ RSpec.describe Pdfium do
       end
     end
 
-    # Skip all other tests that interact with PDFium
-    describe "#dimensions", skip: "PDFium library issues" do
+    # Enable all tests that interact with PDFium
+    describe "#dimensions" do
       it "returns the width and height of the first page" do
         begin
           width, height = pdf.dimensions
@@ -58,7 +42,7 @@ RSpec.describe Pdfium do
       end
     end
 
-    describe "#page_count", skip: "PDFium library issues" do
+    describe "#page_count" do
       it "returns the number of pages" do
         begin
           expect(pdf.page_count).to be_a(Integer)
@@ -69,7 +53,7 @@ RSpec.describe Pdfium do
       end
     end
 
-    describe "#annotations", skip: "PDFium library issues" do
+    describe "#annotations" do
       it "returns an array of annotations" do
         begin
           expect(pdf.annotations).to be_an(Array)
@@ -79,7 +63,7 @@ RSpec.describe Pdfium do
       end
     end
 
-    describe "#annotations_by_page", skip: "PDFium library issues" do
+    describe "#annotations_by_page" do
       it "returns annotations for a specific page" do
         begin
           expect(pdf.annotations_by_page(0)).to be_an(Array)
@@ -102,7 +86,7 @@ RSpec.describe Pdfium do
       end
     end
 
-    describe "#close", skip: "PDFium library issues" do
+    describe "#close" do
       it "closes the document" do
         pdf.close
         expect(pdf.handle.null?).to be true
