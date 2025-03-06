@@ -42,6 +42,7 @@ require_relative "pdfium/version"
 require_relative "pdfium/error"
 require_relative "pdfium/bindings"
 require_relative "pdfium/document"
+require_relative "pdfium/text"
 
 # Register cleanup handler to destroy the PDFium library when the Ruby process exits
 at_exit do

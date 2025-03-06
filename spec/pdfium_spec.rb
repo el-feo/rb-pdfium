@@ -36,7 +36,7 @@ RSpec.describe Pdfium do
     it "returns the correct library name for the current platform" do
       platform = FFI::Platform::OS
       path = described_class.default_library_path
-      
+
       case platform
       when "darwin"
         expect(path).to eq("libpdfium.dylib")
@@ -136,7 +136,7 @@ RSpec.describe Pdfium do
         allow(pdf).to receive(:annotations_by_page).with(0).and_return([{id: 1}])
         allow(pdf).to receive(:annotations_by_page).with(1).and_return([{id: 2}, {id: 3}])
         allow(pdf).to receive(:annotations_by_page).with(2).and_return([{id: 4}])
-        
+
         expect(pdf.annotations).to eq([{id: 1}, {id: 2}, {id: 3}, {id: 4}])
       end
     end

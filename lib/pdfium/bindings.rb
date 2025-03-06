@@ -29,6 +29,13 @@ module Pdfium
     typedef :pointer, :FPDF_BITMAP
     typedef :pointer, :FPDF_FORMHANDLE
     typedef :pointer, :FPDF_LINK
+    typedef :pointer, :FPDF_SEARCH
+    typedef :pointer, :FPDF_TEXTPAGE
+    typedef :pointer, :FPDF_SCHHANDLE
+    typedef :pointer, :FPDF_PAGELINK
+    typedef :pointer, :FPDF_PAGERANGE
+    typedef :pointer, :FPDF_DEST
+    typedef :pointer, :FPDF_ACTION
     typedef :int, :FPDF_BOOL
     typedef :int, :FPDF_ERROR
     typedef :int, :FPDF_ANNOTATION_SUBTYPE
@@ -62,6 +69,35 @@ module Pdfium
     attach_function :FPDF_LoadPage, [:FPDF_DOCUMENT, :int], :FPDF_PAGE
     attach_function :FPDF_ClosePage, [:FPDF_PAGE], :void
     attach_function :FPDF_GetLastError, [], :FPDF_ERROR
+
+    # Text page functions
+    safe_attach_function :FPDFText_LoadPage, [:FPDF_PAGE], :FPDF_TEXTPAGE
+    safe_attach_function :FPDFText_ClosePage, [:FPDF_TEXTPAGE], :void
+    safe_attach_function :FPDFText_CountChars, [:FPDF_TEXTPAGE], :int
+    safe_attach_function :FPDFText_GetUnicode, [:FPDF_TEXTPAGE, :int], :int
+    safe_attach_function :FPDFText_GetText, [:FPDF_TEXTPAGE, :int, :int, :pointer], :int
+    safe_attach_function :FPDFText_GetCharBox, [:FPDF_TEXTPAGE, :int, :pointer, :pointer, :pointer, :pointer], :FPDF_BOOL
+    safe_attach_function :FPDFText_GetCharIndexAtPos, [:FPDF_TEXTPAGE, :double, :double, :double, :double], :int
+    
+    # Text search functions
+    safe_attach_function :FPDFText_FindStart, [:FPDF_TEXTPAGE, :pointer, :int, :int], :FPDF_SCHHANDLE
+    safe_attach_function :FPDFText_FindNext, [:FPDF_SCHHANDLE], :FPDF_BOOL
+    safe_attach_function :FPDFText_FindPrev, [:FPDF_SCHHANDLE], :FPDF_BOOL
+    safe_attach_function :FPDFText_GetSchResultIndex, [:FPDF_SCHHANDLE], :int
+    safe_attach_function :FPDFText_GetSchCount, [:FPDF_SCHHANDLE], :int
+    safe_attach_function :FPDFText_FindClose, [:FPDF_SCHHANDLE], :void
+    
+    # Text selection functions
+    safe_attach_function :FPDFText_GetBoundedText, [:FPDF_TEXTPAGE, :double, :double, :double, :double, :pointer, :int], :int
+    safe_attach_function :FPDFText_GetCharIndexAtPos, [:FPDF_TEXTPAGE, :double, :double, :double, :double], :int
+    safe_attach_function :FPDFText_GetRect, [:FPDF_TEXTPAGE, :int, :pointer, :pointer, :pointer, :pointer], :FPDF_BOOL
+    
+    # Text link functions
+    safe_attach_function :FPDFLink_LoadWebLinks, [:FPDF_TEXTPAGE], :FPDF_PAGELINK
+    safe_attach_function :FPDFLink_CountWebLinks, [:FPDF_PAGELINK], :int
+    safe_attach_function :FPDFLink_GetURL, [:FPDF_PAGELINK, :int, :pointer, :int], :int
+    safe_attach_function :FPDFLink_GetTextRange, [:FPDF_PAGELINK, :int, :pointer, :pointer], :FPDF_BOOL
+    safe_attach_function :FPDFLink_CloseWebLinks, [:FPDF_PAGELINK], :void
 
     # Annotation functions - some of these might not be available in all PDFium versions
     safe_attach_function :FPDFPage_GetAnnotCount, [:FPDF_PAGE], :int
