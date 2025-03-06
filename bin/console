@@ -4,7 +4,7 @@
 require "bundler/setup"
 Bundler.require :tools
 
-require "rb/pdfium"
+require "pdfium"
 require "irb"
 
 IRB.start __FILE__

@@ -8,9 +8,15 @@ toc::[]
 
 == Features
 
+* Ruby bindings for the PDFium library
+* Access PDF document properties (dimensions, page count)
+* Get annotations from PDF documents
+* Set custom PDFium library path via environment variable
+
 == Requirements
 
 . link:https://www.ruby-lang.org[Ruby].
+. PDFium library (libpdfium.dylib, libpdfium.so, or pdfium.dll)
 
 == Setup
 
@@ -41,10 +47,84 @@ Once the gem is installed, you only need to require it:
 
 [source,ruby]
 ----
-require "rb/pdfium"
+require "pdfium"
 ----
 
 == Usage
+
+=== Setting PDFium Library Path
+
+By default, the gem will look for the PDFium library in the system's standard library paths. You can specify a custom path using the `PDFIUM_LIBRARY_PATH` environment variable:
+
+[source,bash]
+----
+export PDFIUM_LIBRARY_PATH=/path/to/libpdfium.dylib
+----
+
+Or in your Ruby code:
+
+[source,ruby]
+----
+ENV["PDFIUM_LIBRARY_PATH"] = "/path/to/libpdfium.dylib"
+----
+
+=== Opening a PDF Document
+
+[source,ruby]
+----
+# Open a PDF document
+pdf = Pdfium.new("path/to/document.pdf")
+
+# Open a password-protected PDF document
+pdf = Pdfium.new("path/to/document.pdf", "password")
+----
+
+=== Getting Document Information
+
+[source,ruby]
+----
+# Get document dimensions (width and height of the first page)
+width, height = pdf.dimensions
+puts "Document dimensions: #{width} x #{height} points"
+
+# Get page count
+page_count = pdf.page_count
+puts "Number of pages: #{page_count}"
+
+# Get dimensions of a specific page (0-based index)
+width, height = pdf.dimensions_for_page(1)  # Second page
+puts "Page 2 dimensions: #{width} x #{height} points"
+----
+
+=== Working with Annotations
+
+[source,ruby]
+----
+# Get all annotations in the document
+annotations = pdf.annotations
+puts "Total annotations: #{annotations.size}"
+
+# Get annotations for a specific page (0-based index)
+page_annotations = pdf.annotations_by_page(0)  # First page
+puts "Annotations on page 1: #{page_annotations.size}"
+
+# Process annotations
+page_annotations.each do |annotation|
+  puts "Annotation type: #{annotation[:subtype]}"
+  puts "Position: #{annotation[:rect]}"
+  puts "Contents: #{annotation[:contents]}"
+  puts "---"
+end
+----
+
+=== Closing the Document
+
+The document will be automatically closed when the object is garbage collected, but you can explicitly close it:
+
+[source,ruby]
+----
+pdf.close
+----
 
 == Development
 
