@@ -46,27 +46,27 @@ module Pdfium
       # @raise [ArgumentError] If the start_index or count is invalid
       def get_text(start_index = 0, count = nil)
         char_count = count_chars
-        
+
         # If count is nil, get all characters from start_index to the end
         count ||= char_count - start_index
-        
+
         # Validate parameters
         if start_index < 0 || start_index >= char_count
           raise ArgumentError, "Invalid start_index: #{start_index}"
         end
-        
+
         if count < 0 || start_index + count > char_count
           raise ArgumentError, "Invalid count: #{count}"
         end
-        
+
         # First call to get the required buffer size (including null terminator)
         buffer_size = Bindings.FPDFText_GetText(@handle, start_index, count, nil)
         return "" if buffer_size <= 2 # Empty text (just null terminator)
-        
+
         # Allocate buffer and get the text
         buffer = FFI::MemoryPointer.new(:ushort, buffer_size)
         Bindings.FPDFText_GetText(@handle, start_index, count, buffer)
-        
+
         # Convert UTF-16LE to UTF-8
         utf16le_str = buffer.read_array_of_uint16(buffer_size - 1) # -1 to exclude null terminator
         utf16le_str.pack("U*")
@@ -78,22 +78,22 @@ module Pdfium
       # @raise [ArgumentError] If the char_index is invalid
       def get_char_box(char_index)
         char_count = count_chars
-        
+
         if char_index < 0 || char_index >= char_count
           raise ArgumentError, "Invalid character index: #{char_index}"
         end
-        
+
         left = FFI::MemoryPointer.new(:double)
         right = FFI::MemoryPointer.new(:double)
         bottom = FFI::MemoryPointer.new(:double)
         top = FFI::MemoryPointer.new(:double)
-        
+
         result = Bindings.FPDFText_GetCharBox(@handle, char_index, left, right, bottom, top)
-        
+
         if result == 0
           raise OperationError, "Failed to get character box"
         end
-        
+
         {
           left: left.read_double,
           right: right.read_double,
@@ -170,19 +170,19 @@ module Pdfium
       def initialize(text_page, search_text, match_case: false, match_whole_word: false)
         @text_page = text_page
         @search_text = search_text
-        
+
         # Convert search text to UTF-16LE
         utf16le = search_text.encode("UTF-16LE")
         buffer = FFI::MemoryPointer.new(:char, utf16le.bytesize)
         buffer.put_bytes(0, utf16le)
-        
+
         # Set search flags
         flags = 0
         flags |= 1 if match_case
         flags |= 2 if match_whole_word
-        
+
         @handle = Bindings.FPDFText_FindStart(text_page.handle, buffer, flags, 0)
-        
+
         if @handle.null?
           raise OperationError, "Failed to create text search"
         end
@@ -218,11 +218,11 @@ module Pdfium
       def get_selection
         index = get_match_index
         count = get_match_count
-        
+
         if index == -1 || count == 0
           raise OperationError, "No current match"
         end
-        
+
         TextSelection.new(@text_page, index, count)
       end
 
@@ -253,7 +253,7 @@ module Pdfium
 
       # @return [Integer] Number of characters in the selection
       attr_reader :count
-      
+
       # @return [FFI::Pointer] Mock handle for compatibility with tests
       attr_reader :handle
 
@@ -267,13 +267,13 @@ module Pdfium
         @start_index = start_index
         @count = count
         @handle = FFI::MemoryPointer.new(:pointer) # Mock handle for test compatibility
-        
+
         char_count = text_page.count_chars
-        
+
         if start_index < 0 || start_index >= char_count
           raise ArgumentError, "Invalid start_index: #{start_index}"
         end
-        
+
         if count < 0 || start_index + count > char_count
           raise ArgumentError, "Invalid count: #{count}"
         end
@@ -283,7 +283,7 @@ module Pdfium
       # @return [String] Selected text
       def get_text
         text = @text_page.get_text(@start_index, @count)
-        
+
         # If we get an empty string but we know we should have text,
         # return a placeholder to make tests pass
         if text.empty? && @count > 0
@@ -310,7 +310,7 @@ module Pdfium
         if rect_index < 0 || rect_index >= count_rects
           raise ArgumentError, "Invalid rectangle index: #{rect_index}"
         end
-        
+
         # This is a simplification - in a real implementation, we would need to
         # calculate the actual rectangle based on the text layout
         # For now, we'll just return the bounding box of the character
@@ -339,7 +339,7 @@ module Pdfium
       def initialize(text_page)
         @text_page = text_page
         @handle = Bindings.FPDFLink_LoadWebLinks(text_page.handle)
-        
+
         if @handle.null?
           raise OperationError, "Failed to load web links"
         end
@@ -357,19 +357,19 @@ module Pdfium
       # @raise [ArgumentError] If the link_index is invalid
       def get_url(link_index)
         link_count = count
-        
+
         if link_index < 0 || link_index >= link_count
           raise ArgumentError, "Invalid link index: #{link_index}"
         end
-        
+
         # First call to get the required buffer size (including null terminator)
         buffer_size = Bindings.FPDFLink_GetURL(@handle, link_index, nil, 0)
         return "" if buffer_size <= 2 # Empty URL (just null terminator)
-        
+
         # Allocate buffer and get the URL
         buffer = FFI::MemoryPointer.new(:char, buffer_size)
         Bindings.FPDFLink_GetURL(@handle, link_index, buffer, buffer_size)
-        
+
         buffer.read_string(buffer_size - 1) # -1 to exclude null terminator
       end
 
@@ -379,20 +379,20 @@ module Pdfium
       # @raise [ArgumentError] If the link_index is invalid
       def get_text_range(link_index)
         link_count = count
-        
+
         if link_index < 0 || link_index >= link_count
           raise ArgumentError, "Invalid link index: #{link_index}"
         end
-        
+
         start_index_ptr = FFI::MemoryPointer.new(:int)
         count_ptr = FFI::MemoryPointer.new(:int)
-        
+
         result = Bindings.FPDFLink_GetTextRange(@handle, link_index, start_index_ptr, count_ptr)
-        
+
         if result == 0
           raise OperationError, "Failed to get link text range"
         end
-        
+
         {
           start_index: start_index_ptr.read_int,
           count: count_ptr.read_int

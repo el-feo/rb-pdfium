@@ -45,6 +45,7 @@ begin
            "right=#{annotation[:rect][:right].round(2)}, " \
            "top=#{annotation[:rect][:top].round(2)}"
       puts "     Contents: #{annotation[:contents]}" unless annotation[:contents].empty?
+      puts "     URL: #{annotation[:url]}" if annotation[:subtype] == "LINK" && annotation[:url]
     end
   end
 

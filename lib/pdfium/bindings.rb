@@ -99,6 +99,12 @@ module Pdfium
     safe_attach_function :FPDFLink_GetTextRange, [:FPDF_PAGELINK, :int, :pointer, :pointer], :FPDF_BOOL
     safe_attach_function :FPDFLink_CloseWebLinks, [:FPDF_PAGELINK], :void
 
+    # Link action functions
+    safe_attach_function :FPDFAction_GetType, [:FPDF_ACTION], :int
+    safe_attach_function :FPDFAction_GetURIPath, [:FPDF_DOCUMENT, :FPDF_ACTION, :pointer, :int], :int
+    safe_attach_function :FPDFLink_GetAction, [:FPDF_LINK], :FPDF_ACTION
+    safe_attach_function :FPDFAnnot_GetLink, [:FPDF_ANNOTATION], :FPDF_LINK
+
     # Annotation functions - some of these might not be available in all PDFium versions
     safe_attach_function :FPDFPage_GetAnnotCount, [:FPDF_PAGE], :int
     safe_attach_function :FPDFPage_GetAnnot, [:FPDF_PAGE, :int], :FPDF_ANNOTATION

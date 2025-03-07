@@ -138,11 +138,39 @@ module Pdfium
             if buffer_size > 0
               buffer = FFI::MemoryPointer.new(:char, buffer_size)
               Bindings.FPDFAnnot_GetStringValue(annot, "Contents", buffer, buffer_size)
-              contents = buffer.read_string(buffer_size - 1) # -1 to exclude null terminator
+              # PDFium returns UTF-16LE strings, so we need to convert to UTF-8
+              # Read as 16-bit characters (excluding the null terminator at the end)
+              utf16_chars = buffer.get_array_of_uint16(0, (buffer_size / 2) - 1)
+              # Convert UTF-16LE code points to UTF-8 string
+              contents = utf16_chars.pack('U*')
             end
           end
           
-          result << {
+          # Extract URL for link annotations
+          url = ""
+          if subtype == 2  # LINK annotation
+            link = Bindings.FPDFAnnot_GetLink(annot)
+            unless link.null?
+              action = Bindings.FPDFLink_GetAction(link)
+              unless action.null?
+                action_type = Bindings.FPDFAction_GetType(action)
+                
+                # Action type 3 is URI action (PDFACTION_URI)
+                if action_type == 3  # URI action
+                  # First call to get the required buffer size
+                  buffer_size = Bindings.FPDFAction_GetURIPath(@handle, action, nil, 0)
+                  
+                  if buffer_size > 0
+                    buffer = FFI::MemoryPointer.new(:char, buffer_size)
+                    Bindings.FPDFAction_GetURIPath(@handle, action, buffer, buffer_size)
+                    url = buffer.read_string(buffer_size - 1) # -1 to exclude null terminator
+                  end
+                end
+              end
+            end
+          end
+          
+          annotation_data = {
             page: page_index,
             index: annot_index,
             subtype: annotation_subtype_name(subtype),
@@ -154,6 +182,11 @@ module Pdfium
             },
             contents: contents
           }
+          
+          # Add URL if it's a link annotation with a URL
+          annotation_data[:url] = url unless url.empty?
+          
+          result << annotation_data
         end
       ensure
         Bindings.FPDF_ClosePage(page) unless page.null?
