@@ -1,12 +1,14 @@
 # frozen_string_literal: true
 
+require_relative "lib/pdfium/version"
+
 Gem::Specification.new do |spec|
   spec.name = "rb-pdfium"
-  spec.version = "0.0.0"
+  spec.version = Pdfium::VERSION
   spec.authors = ["Jeb Coleman"]
   spec.email = ["jebcoleman@gmail.com"]
   spec.homepage = "https://undefined.io/projects/rb-pdfium"
-  spec.summary = ""
+  spec.summary = "Ruby bindings for PDFium library"
   spec.license = "Hippocratic-2.1"
 
   spec.metadata = {
@@ -25,6 +27,7 @@ Gem::Specification.new do |spec|
   spec.required_ruby_version = "~> 3.3"
   spec.add_dependency "refinements", "~> 12.10"
   spec.add_dependency "zeitwerk", "~> 2.7"
+  spec.add_dependency "ffi", "~> 1.16"
 
   spec.extra_rdoc_files = Dir["README*", "LICENSE*"]
   spec.files = Dir["*.gemspec", "lib/**/*"]

@@ -21,6 +21,10 @@ group :test do
   gem "rspec", "~> 3.13"
 end
 
+group :development, :test do
+  gem "dotenv", "~> 3.1"
+end
+
 group :tools do
   gem "amazing_print", "~> 1.6"
   gem "debug", "~> 1.9"
