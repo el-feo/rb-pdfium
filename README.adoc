@@ -1,3 +1,23 @@
+== Warning: Do not use. 
+== This is an experiment to see how far I can get using AI.
+
+Almost everything here was written by AI.
+
+Prompt Used:
+
+1. Let’s create a ruby gem using Gemsmith https://alchemists.io/projects/gemsmith
+2. We’re working on creating a ruby gem that will provide an API for the PDFium library.
+3. This gem should allow the user to set the path to the PDFium binary in an ENV variable.
+4. Use ruby-ffi, https://github.com/ffi/ffi, to call functions in the PDFium library.
+5. Start by adding an interface for: https://developers.foxit.com/resources/pdf-sdk/c_api_reference_pdfium/group___f_f_d_f_d_o_c_u_m_e_n_t.html
+    1. For example, we want it to be architected in such a way that we can call “Pdfium.new(‘file path to pdf’).dimensions” in our ruby code and it returns the [width,height] of the document. 
+    2. Another example would be “Pdfium.new(‘file path to pdf’).annotations” would return all of the annotations in a PDF. 
+    3. Another example would be “Pdfium.new(‘file path to pdf’).annotations_by_page(1)” would return annotations for the first page.
+6. Each module, https://developers.foxit.com/resources/pdf-sdk/c_api_reference_pdfium/modules.html from the documentation should have its own file. Keep them colocated in the lib/PDFium folder
+7. Write a corresponding RSpec spec for each module of the API https://developers.foxit.com/resources/pdf-sdk/c_api_reference_pdfium/index.html. start by writing the tests first for each module. The tests should pass before moving on. The folder structure of the tests should match the lib folder.
+
+1. Let’s try to match all of the features documented in the api, https://developers.foxit.com/resources/pdf-sdk/c_api_reference_pdfium/index.html.
+
 :toc: macro
 :toclevels: 5
 :figure-caption!:
